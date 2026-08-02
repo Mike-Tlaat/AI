@@ -2,8 +2,8 @@
 // إعدادات الاتصال بـ Supabase
 // غيّر القيمتين تحت بمعلومات مشروعك (Project Settings > API)
 // ============================================================
-const SUPABASE_URL = "https://YOUR-PROJECT-REF.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";
+const SUPABASE_URL = "https://ubavepfzrwtlinsansxi.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_v2sbdwmrgbiwoTtUFuwVsA_2UwJbuBz";
 
 // عميل Supabase مشترك بين كل الصفحات
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
