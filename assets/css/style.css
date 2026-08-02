@@ -1,0 +1,297 @@
+/* ============================================================
+   نظام الامتحانات — لوحة الألوان والخطوط
+   خلفية: #F7F5F1 (ورقة فاتحة) | أساسي: #133B33 (أخضر داكن هادئ يشبه لوح
+   الطباشير/الدفاتر) | ثانوي: #8C6D46 (بني مصحفي دافئ) | نجاح: #2F7D5C
+   فشل: #B3432B | خط: #E7E1D3
+   العنوان: Amiri (خط عربي كلاسيكي بشخصية) | المتن: Cairo | بيانات: Tajawal
+   العنصر المميز: شريط "قلم حبر" متحرك أسفل كل بطاقة سؤال نشطة، وترقيم
+   الأسئلة بخط يد كأنه مكتوب على كراسة امتحان.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap');
+
+:root {
+  --bg: #F7F5F1;
+  --paper: #FFFFFF;
+  --ink: #1E1B16;
+  --ink-soft: #5B554A;
+  --line: #E7E1D3;
+  --primary: #133B33;
+  --primary-light: #1E5347;
+  --accent: #8C6D46;
+  --accent-light: #C9A227;
+  --success: #2F7D5C;
+  --success-bg: #E7F3EC;
+  --danger: #B3432B;
+  --danger-bg: #FBEAE4;
+  --radius: 14px;
+  --shadow: 0 2px 10px rgba(30, 27, 22, 0.06), 0 1px 2px rgba(30, 27, 22, 0.08);
+  --shadow-lg: 0 12px 32px rgba(30, 27, 22, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+
+body {
+  background-image:
+    linear-gradient(180deg, rgba(19,59,51,0.03), transparent 240px);
+  min-height: 100vh;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Amiri', serif;
+  color: var(--primary);
+  margin: 0;
+}
+
+.mono, .data, .timer, .num-badge {
+  font-family: 'Tajawal', sans-serif;
+}
+
+a { color: var(--primary); text-decoration: none; }
+
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ===== Top bar ===== */
+.topbar {
+  background: var(--primary);
+  color: #F7F5F1;
+  padding: 18px 0;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.topbar::after {
+  content: "";
+  position: absolute;
+  bottom: 0; right: 0; left: 0;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--accent-light) 0 18px, transparent 18px 26px);
+  opacity: .8;
+}
+.topbar .container { display: flex; align-items: center; justify-content: space-between; padding-top: 0; padding-bottom: 0;}
+.topbar h1 { color: #FBF8F1; font-size: 1.5rem; }
+.topbar .sub { color: #C9BFA6; font-size: .85rem; margin-top: 2px; font-family: 'Cairo', sans-serif; }
+
+/* ===== Cards ===== */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+.card + .card { margin-top: 0; }
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--primary);
+}
+.section-title .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent-light);
+  flex-shrink: 0;
+}
+
+/* ===== Forms ===== */
+label { display: block; font-size: .9rem; font-weight: 600; margin-bottom: 6px; color: var(--ink-soft); }
+input[type=text], input[type=number], input[type=tel], textarea, select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  font-family: 'Cairo', sans-serif;
+  font-size: .95rem;
+  background: #FCFBF8;
+  color: var(--ink);
+  transition: border-color .15s, box-shadow .15s;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(19,59,51,0.12);
+}
+.field { margin-bottom: 14px; }
+.row { display: flex; gap: 14px; flex-wrap: wrap; }
+.row > .field { flex: 1; min-width: 180px; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 20px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  font-size: .92rem;
+  cursor: pointer;
+  transition: transform .1s, box-shadow .15s, opacity .15s;
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-light); }
+.btn-accent { background: var(--accent-light); color: #24200f; }
+.btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #952f1c; }
+.btn-sm { padding: 6px 12px; font-size: .8rem; border-radius: 8px; }
+.btn-block { width: 100%; justify-content: center; }
+.btn-ghost { background: transparent; color: var(--ink-soft); }
+
+/* ===== Badges / tags ===== */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: .75rem; font-weight: 700; font-family: 'Tajawal', sans-serif;
+}
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-danger { background: var(--danger-bg); color: var(--danger); }
+.badge-locked { background: #F1E5D8; color: var(--accent); }
+.badge-open { background: var(--success-bg); color: var(--success); }
+.badge-neutral { background: #EFEBE2; color: var(--ink-soft); }
+
+/* ===== Table ===== */
+table { width: 100%; border-collapse: collapse; font-family: 'Tajawal', sans-serif; font-size: .9rem; }
+th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right; }
+th { color: var(--ink-soft); font-weight: 700; font-size: .82rem; text-transform: uppercase; letter-spacing: .02em;}
+tr:hover td { background: #FBFAF7; }
+
+/* ===== Exam list link cards ===== */
+.exam-link-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px;
+  background: #FCFBF8;
+}
+.exam-link-row .title { font-weight: 700; color: var(--primary); }
+.exam-link-row .meta { font-size: .8rem; color: var(--ink-soft); margin-top: 3px; }
+.copy-input { display:flex; gap:8px; margin-top:8px;}
+.copy-input input { flex:1; font-size: .78rem; background:#F1EEE6; }
+
+/* ===== Question card in exam-taking view ===== */
+.question-card {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.question-card::before {
+  content: "";
+  position: absolute; right: 0; top: 0; bottom: 0; width: 5px;
+  background: var(--line);
+  transition: background .2s;
+}
+.question-card.answered::before { background: var(--success); }
+.num-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--primary); color: #fff; font-weight: 700; font-size: .95rem;
+  margin-left: 12px; flex-shrink: 0;
+}
+.q-header { display: flex; align-items: flex-start; gap: 4px; margin-bottom: 14px; }
+.q-text { font-size: 1.05rem; font-weight: 600; line-height: 1.7; padding-top: 4px; }
+.q-points { font-size: .75rem; color: var(--ink-soft); font-family: 'Tajawal', sans-serif; margin-right: auto; white-space: nowrap; }
+
+.option-list { display: flex; flex-direction: column; gap: 8px; margin-right: 46px; }
+.option-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 10px;
+  cursor: pointer; transition: all .12s; background: #FCFBF8;
+}
+.option-item:hover { border-color: var(--accent-light); }
+.option-item.selected { border-color: var(--primary); background: #EFF5F2; font-weight: 700; }
+.option-item input { accent-color: var(--primary); width: 17px; height: 17px; }
+
+.blank-input-row { margin-right: 46px; margin-bottom: 8px; }
+.blank-input-row label { font-size: .8rem; }
+
+/* ===== Progress bar ===== */
+.progress-wrap { margin-bottom: 4px; }
+.progress-track { height: 10px; background: #EFEBE2; border-radius: 20px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-light), var(--success)); border-radius: 20px; transition: width .25s ease; }
+.progress-label { display: flex; justify-content: space-between; font-size: .82rem; color: var(--ink-soft); margin-top: 6px; font-family: 'Tajawal', sans-serif; }
+
+/* ===== Sticky exam header ===== */
+.exam-sticky {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(247,245,241,0.95);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 0;
+}
+.timer-box {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--primary); color: #fff;
+  padding: 8px 16px; border-radius: 10px; font-weight: 700;
+  font-family: 'Tajawal', sans-serif; font-size: 1.05rem;
+  letter-spacing: .03em;
+}
+.timer-box.warn { background: var(--danger); animation: pulse 1.2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+/* ===== Result card ===== */
+.result-hero {
+  text-align: center; padding: 40px 20px;
+}
+.result-percentage { font-size: 4rem; font-weight: 800; font-family: 'Amiri', serif; }
+.result-percentage.pass { color: var(--success); }
+.result-percentage.fail { color: var(--danger); }
+.result-grade { font-size: 1.2rem; font-weight: 700; margin-top: 4px; }
+
+/* ===== Locked / message screens ===== */
+.center-screen {
+  min-height: 70vh; display: flex; align-items: center; justify-content: center;
+}
+.message-card { max-width: 460px; text-align: center; }
+.message-card .icon { font-size: 3rem; margin-bottom: 14px; }
+.whatsapp-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #25D366; color: #fff; padding: 12px 22px;
+  border-radius: 12px; font-weight: 700; margin-top: 16px;
+}
+
+/* ===== Utility ===== */
+.flex-between { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.muted { color: var(--ink-soft); font-size: .88rem; }
+.mt-8 { margin-top: 8px; } .mt-16 { margin-top: 16px; } .mt-24 { margin-top: 24px; }
+.hidden { display: none !important; }
+.tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line); margin-bottom: 18px; flex-wrap: wrap; }
+.tab-btn { padding: 10px 16px; border: none; background: none; cursor: pointer; font-family: 'Cairo'; font-weight: 700; color: var(--ink-soft); border-bottom: 3px solid transparent; }
+.tab-btn.active { color: var(--primary); border-color: var(--accent-light); }
+.spinner { width: 22px; height: 22px; border: 3px solid var(--line); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--primary); color: #fff; padding: 12px 22px; border-radius: 10px;
+  box-shadow: var(--shadow-lg); font-weight: 600; z-index: 100; font-size: .9rem;
+}
+.answer-key-note { font-size: .78rem; color: var(--ink-soft); background: #F1EEE6; padding: 8px 12px; border-radius: 8px; margin-top: 6px; }
+
+@media (max-width: 640px) {
+  .container { padding: 18px 14px 50px; }
+  .card { padding: 16px; }
+  .option-list, .blank-input-row { margin-right: 0; }
+  .q-header { flex-wrap: wrap; }
+}
