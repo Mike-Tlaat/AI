@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>لوحة التحكم — إدارة الامتحانات</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="container topbar-inner">
+        <div>
+          <h1>لوحة التحكم</h1>
+          <div class="sub">إدارة الامتحانات، الأسئلة، والنتائج</div>
+        </div>
+        <div class="topbar-chip">
+          <i class="fa-solid fa-sparkles"></i
+          ><span>Developed by Mike Talaat</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="exams">الامتحانات</button>
+        <button class="tab-btn" data-tab="builder">إنشاء امتحان جديد</button>
+        <button class="tab-btn" data-tab="results">النتائج</button>
+      </div>
+
+      <!-- ============ TAB: EXAMS LIST ============ -->
+      <div id="tab-exams" class="tab-panel">
+        <div class="card">
+          <div class="section-title">
+            <span class="dot"></span> كل الامتحانات
+          </div>
+          <div id="examsList" class="muted">جارِ التحميل...</div>
+        </div>
+      </div>
+
+      <!-- ============ TAB: BUILDER ============ -->
+      <div id="tab-builder" class="tab-panel hidden">
+        <div class="card">
+          <div class="section-title">
+            <span class="dot"></span> بيانات الامتحان
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>اسم الامتحان</label>
+              <input
+                type="text"
+                id="examTitle"
+                placeholder="مثال: امتحان الوحدة الأولى"
+              />
+            </div>
+            <div class="field">
+              <label>مدة الامتحان (بالدقائق)</label>
+              <input type="number" id="examDuration" min="1" value="30" />
+            </div>
+            <div class="field">
+              <label>نسبة النجاح (%)</label>
+              <input
+                type="number"
+                id="examPassPct"
+                min="1"
+                max="100"
+                value="50"
+              />
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>إظهار النتيجة</label>
+              <select id="examAutoShow">
+                <option value="true">تلقائيًا بعد التسليم مباشرة</option>
+                <option value="false">
+                  لاحقًا فقط (عبر صفحة الاستعلام بالرقم)
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="flex-between">
+            <div class="section-title" style="margin-bottom: 0">
+              <span class="dot"></span> الأسئلة
+            </div>
+            <div style="display: flex; gap: 8px">
+              <button
+                class="btn btn-outline btn-sm"
+                onclick="addQuestion('true_false')"
+              >
+                + صح / غلط
+              </button>
+              <button
+                class="btn btn-outline btn-sm"
+                onclick="addQuestion('mcq')"
+              >
+                + اختيار من متعدد
+              </button>
+              <button
+                class="btn btn-outline btn-sm"
+                onclick="addQuestion('fill')"
+              >
+                + أكمل
+              </button>
+            </div>
+          </div>
+          <div id="questionsBuilder" class="mt-16"></div>
+          <div id="noQuestionsMsg" class="muted">
+            لم تُضف أسئلة بعد. اضغط أحد الأزرار أعلاه.
+          </div>
+        </div>
+
+        <div class="flex-between">
+          <span class="muted" id="builderStatus"></span>
+          <button class="btn btn-primary" id="saveExamBtn" onclick="saveExam()">
+            حفظ الامتحان
+          </button>
+        </div>
+      </div>
+
+      <!-- ============ TAB: RESULTS ============ -->
+      <div id="tab-results" class="tab-panel hidden">
+        <div class="card">
+          <div class="row">
+            <div class="field">
+              <label>فلترة بالامتحان</label>
+              <select id="resultsExamFilter" onchange="loadResults()">
+                <option value="">كل الامتحانات</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>بحث بالاسم أو الرقم</label>
+              <input
+                type="text"
+                id="resultsSearch"
+                placeholder="اكتب اسم أو رقم هاتف"
+                oninput="loadResults()"
+              />
+            </div>
+            <div class="field" style="max-width: 220px">
+              <label>إظهار إجابات الطلاب</label>
+              <select id="showAnswersToggle" onchange="renderResultsTables()">
+                <option value="hide">إخفاء الإجابات</option>
+                <option value="show">إظهار الإجابات</option>
+              </select>
+            </div>
+          </div>
+          <div class="result-filter-row">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm active"
+              data-result-filter="all"
+              onclick="setResultsView('all')"
+            >
+              الكل
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              data-result-filter="pass"
+              onclick="setResultsView('pass')"
+            >
+              الناجحون فقط
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              data-result-filter="fail"
+              onclick="setResultsView('fail')"
+            >
+              غير الناجحين فقط
+            </button>
+          </div>
+        </div>
+
+        <div class="card" id="passResultsCard">
+          <div class="section-title">
+            <span class="dot"></span>
+            <button
+              type="button"
+              class="section-action"
+              onclick="setResultsView('pass')"
+            >
+              الطلاب الناجحون (<span id="passCount">0</span>)
+            </button>
+          </div>
+          <div id="passTable" class="muted">جارِ التحميل...</div>
+        </div>
+
+        <div class="card" id="failResultsCard">
+          <div class="section-title">
+            <span class="dot"></span>
+            <button
+              type="button"
+              class="section-action"
+              onclick="setResultsView('fail')"
+            >
+              الطلاب غير الناجحين (<span id="failCount">0</span>)
+            </button>
+          </div>
+          <div id="failTable" class="muted">جارِ التحميل...</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastHost"></div>
+
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/grading.js"></script>
+    <script src="assets/js/admin.js"></script>
+    <script src="assets/js/admin-results.js"></script>
+  </body>
+</html>
