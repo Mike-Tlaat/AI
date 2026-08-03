@@ -3,6 +3,8 @@
 // ============================================================
 
 let adminResultsView = "all";
+const answerDetailsCache = new Map();
+let resultsSearchDebounce = null;
 
 async function populateExamFilter() {
   const { data, error } = await supabaseClient
@@ -24,7 +26,9 @@ async function loadResults() {
   const examId = document.getElementById("resultsExamFilter").value;
   let query = supabaseClient
     .from("attempts")
-    .select("*, exams(title)")
+    .select(
+      "id, exam_id, student_name, student_phone, score, max_score, percentage, is_passed, submitted_at, exams(title)",
+    )
     .order("submitted_at", { ascending: false });
   if (examId) query = query.eq("exam_id", examId);
   const { data, error } = await query;
@@ -89,7 +93,8 @@ function renderResultsTables() {
 function renderAttemptsTable(rows, showAnswers, isPass) {
   if (!rows.length) return '<span class="muted">لا يوجد نتائج مطابقة.</span>';
   return `
-    <table>
+    <div class="results-table-wrap">
+    <table class="results-table">
       <thead><tr>
         <th>الاسم</th><th>رقم الهاتف</th><th>الامتحان</th><th>النتيجة</th><th>النسبة</th><th>التقدير</th><th>وقت التسليم</th><th></th>
       </tr></thead>
@@ -98,48 +103,79 @@ function renderAttemptsTable(rows, showAnswers, isPass) {
           .map(
             (r) => `
           <tr>
-            <td>${escapeHtml(r.student_name)}</td>
-            <td class="mono">${escapeHtml(r.student_phone)}</td>
-            <td>${escapeHtml(r.exams?.title || "")}</td>
-            <td class="mono">${r.score} / ${r.max_score}</td>
-            <td class="mono"><span class="badge ${isPass ? "badge-success" : "badge-danger"}">${r.percentage.toFixed(1)}%</span></td>
-            <td>${gradeLabelText(r.percentage)}</td>
-            <td class="mono">${new Date(r.submitted_at).toLocaleString("ar-EG")}</td>
-            <td style="display:flex; gap:6px;">
-              <button class="btn btn-outline btn-sm" onclick='toggleDetail("${r.id}")'>${showAnswers ? "التفاصيل" : "—"}</button>
+            <td data-label="الاسم">${escapeHtml(r.student_name)}</td>
+            <td data-label="رقم الهاتف" class="mono">${escapeHtml(r.student_phone)}</td>
+            <td data-label="الامتحان">${escapeHtml(r.exams?.title || "")}</td>
+            <td data-label="النتيجة" class="mono">${r.score} / ${r.max_score}</td>
+            <td data-label="النسبة" class="mono"><span class="badge ${isPass ? "badge-success" : "badge-danger"}">${r.percentage.toFixed(1)}%</span></td>
+            <td data-label="التقدير">${gradeLabelText(r.percentage)}</td>
+            <td data-label="وقت التسليم" class="mono">${new Date(r.submitted_at).toLocaleString("ar-EG")}</td>
+            <td class="actions-cell">
+              <button class="btn btn-outline btn-sm" ${showAnswers ? "" : "disabled"} onclick='toggleDetail("${r.id}")'>${showAnswers ? "التفاصيل" : "إخفاء"}</button>
               <button class="btn btn-danger btn-sm" onclick='deleteAttempt("${r.id}", "${escapeAttr(r.student_name).replace(/"/g, "")}")'>حذف</button>
             </td>
-          </tr>
-          ${showAnswers ? `<tr id="detail-${r.id}" class="hidden"><td colspan="8">${renderAnswerDetail(r)}</td></tr>` : ""}
+          </tr>${showAnswers ? `<tr id="detail-${r.id}" class="hidden detail-row"><td colspan="8"><span class="muted">اضغط "التفاصيل" لعرض إجابات الطالب.</span></td></tr>` : ""}
         `,
           )
           .join("")}
       </tbody>
-    </table>`;
+    </table>
+    </div>`;
 }
 
-function toggleDetail(attemptId) {
+async function toggleDetail(attemptId) {
   const row = document.getElementById("detail-" + attemptId);
-  if (row) row.classList.toggle("hidden");
+  if (!row) return;
+
+  if (row.dataset.loaded !== "1") {
+    row.classList.remove("hidden");
+    row.innerHTML = `<td colspan="8"><span class="muted">جارِ تحميل الإجابات...</span></td>`;
+    const details = await getAttemptAnswers(attemptId);
+    row.innerHTML = `<td colspan="8">${renderAnswerDetail(details)}</td>`;
+    row.dataset.loaded = "1";
+    return;
+  }
+
+  row.classList.toggle("hidden");
 }
 
-function renderAnswerDetail(attempt) {
-  const answers = attempt.answers || [];
+function renderAnswerDetail(answers) {
   if (!answers.length) return '<span class="muted">لا تفاصيل محفوظة.</span>';
-  return `<div style="display:flex; flex-direction:column; gap:8px; padding:8px 0;">
+  return `<div class="answer-detail-list">
     ${answers
       .map(
         (a, i) => `
-      <div style="padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid var(--line);">
-        <div style="font-weight:700; font-size:.85rem;">س${i + 1}: ${escapeHtml(a.question_text || "")}</div>
-        <div class="muted" style="font-size:.8rem; margin-top:4px;">
-          إجابة الطالب: <b>${escapeHtml(formatStudentAnswer(a))}</b> —
+      <div class="answer-detail-card">
+        <div class="answer-detail-question">س${i + 1}: ${escapeHtml(a.question_text || "")}</div>
+        <div class="answer-detail-meta">
+          إجابة الطالب: <span class="answer-inline-value">${escapeHtml(formatStudentAnswer(a))}</span> —
           <span class="badge ${a.is_correct ? "badge-success" : "badge-danger"}">${a.is_correct ? "صحيحة" : "خاطئة"}</span>
         </div>
       </div>`,
       )
       .join("")}
   </div>`;
+}
+
+async function getAttemptAnswers(attemptId) {
+  if (answerDetailsCache.has(attemptId))
+    return answerDetailsCache.get(attemptId);
+  const { data, error } = await supabaseClient
+    .from("attempts")
+    .select("answers")
+    .eq("id", attemptId)
+    .maybeSingle();
+  if (error || !data) return [];
+  const answers = Array.isArray(data.answers) ? data.answers : [];
+  answerDetailsCache.set(attemptId, answers);
+  return answers;
+}
+
+function debouncedResultsSearch() {
+  clearTimeout(resultsSearchDebounce);
+  resultsSearchDebounce = setTimeout(() => {
+    renderResultsTables();
+  }, 220);
 }
 
 function formatStudentAnswer(a) {
@@ -166,4 +202,11 @@ async function deleteAttempt(attemptId, name) {
   loadResults();
 }
 
-document.addEventListener("DOMContentLoaded", () => setResultsView("all"));
+document.addEventListener("DOMContentLoaded", () => {
+  setResultsView("all");
+  const searchInput = document.getElementById("resultsSearch");
+  if (searchInput) {
+    searchInput.removeAttribute("oninput");
+    searchInput.addEventListener("input", debouncedResultsSearch);
+  }
+});
