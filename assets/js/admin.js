@@ -490,3 +490,8 @@ async function deleteExam(examId, title) {
   if (error) return showToast("تعذر الحذف");
   showToast("تم حذف الامتحان");
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderBuilder();
+  loadExams();
+});
