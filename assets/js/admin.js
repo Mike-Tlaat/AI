@@ -489,13 +489,4 @@ async function deleteExam(examId, title) {
     .eq("id", examId);
   if (error) return showToast("تعذر الحذف");
   showToast("تم حذف الامتحان");
-  )
-    return;
-  const { error } = await supabaseClient
-    .from("attempts")
-    .delete()
-    .eq("id", attemptId);
-  if (error) return showToast("تعذر الحذف");
-  showToast("تم حذف النتيجة، يمكن للطالب الامتحان مرة أخرى");
-  loadResults();
 }
