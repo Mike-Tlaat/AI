@@ -4,50 +4,403 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>الاستعلام عن النتيجة</title>
-    <link rel="stylesheet" href="assets/css/style.css" />
+
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome 6 -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
+
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+      :root {
+        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+        --btn-hover-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #c026d3 100%);
+        --bg-dark: #090d16;
+        --card-bg: rgba(18, 24, 38, 0.65);
+        --card-border: rgba(255, 255, 255, 0.08);
+        --input-bg: rgba(10, 14, 23, 0.7);
+        --input-border: rgba(255, 255, 255, 0.12);
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --danger-color: #f43f5e;
+        --success-color: #10b981;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Cairo', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        background-color: var(--bg-dark);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow-x: hidden;
+        position: relative;
+        padding: 20px;
+      }
+
+      /* Dynamic Animated Background Blobs */
+      .bg-glow-1, .bg-glow-2, .bg-glow-3 {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        z-index: 0;
+        pointer-events: none;
+        animation: float 12s infinite alternate ease-in-out;
+      }
+
+      .bg-glow-1 {
+        width: 380px;
+        height: 380px;
+        background: rgba(99, 102, 241, 0.25);
+        top: -80px;
+        right: -80px;
+      }
+
+      .bg-glow-2 {
+        width: 320px;
+        height: 320px;
+        background: rgba(217, 70, 239, 0.2);
+        bottom: -60px;
+        left: -60px;
+        animation-delay: -4s;
+      }
+
+      .bg-glow-3 {
+        width: 250px;
+        height: 250px;
+        background: rgba(16, 185, 129, 0.15);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation-delay: -8s;
+      }
+
+      @keyframes float {
+        0% { transform: translateY(0) scale(1); }
+        100% { transform: translateY(-40px) scale(1.1); }
+      }
+
+      .center-screen {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+
+      .card {
+        width: 100%;
+        max-width: 450px;
+        background: var(--card-bg);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--card-border);
+        border-radius: 28px;
+        padding: 40px 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        animation: cardAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      @keyframes cardAppear {
+        from {
+          opacity: 0;
+          transform: translateY(30px) scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .header-icon {
+        width: 72px;
+        height: 72px;
+        background: var(--primary-gradient);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px auto;
+        font-size: 32px;
+        color: #fff;
+        box-shadow: 0 12px 24px -6px rgba(139, 92, 246, 0.4);
+        animation: pulseIcon 3s infinite ease-in-out;
+      }
+
+      @keyframes pulseIcon {
+        0%, 100% { transform: scale(1); box-shadow: 0 12px 24px -6px rgba(139, 92, 246, 0.4); }
+        50% { transform: scale(1.05); box-shadow: 0 16px 32px -4px rgba(139, 92, 246, 0.6); }
+      }
+
+      h2 {
+        font-size: 24px;
+        font-weight: 800;
+        text-align: center;
+        color: var(--text-main);
+        letter-spacing: -0.5px;
+        margin-bottom: 8px;
+      }
+
+      p.muted {
+        color: var(--text-muted);
+        font-size: 14px;
+        text-align: center;
+        font-weight: 500;
+        line-height: 1.6;
+      }
+
+      .input-group {
+        margin-top: 28px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .field label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #cbd5e1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .input-wrapper i {
+        position: absolute;
+        right: 16px;
+        color: #64748b;
+        font-size: 16px;
+        transition: color 0.3s;
+      }
+
+      .input-wrapper input {
+        width: 100%;
+        background: var(--input-bg);
+        border: 1.5px solid var(--input-border);
+        padding: 14px 48px 14px 16px;
+        border-radius: 14px;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        outline: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        direction: rtl;
+      }
+
+      .input-wrapper input::placeholder {
+        color: #475569;
+        font-weight: 400;
+      }
+
+      .input-wrapper input:focus {
+        border-color: #818cf8;
+        background: rgba(15, 23, 42, 0.9);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18);
+      }
+
+      .input-wrapper input:focus + i {
+        color: #818cf8;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-primary {
+        background: var(--primary-gradient);
+        color: #fff;
+        box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+      }
+
+      .btn-primary:hover {
+        background: var(--btn-hover-gradient);
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px -5px rgba(139, 92, 246, 0.5);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      #lookupError {
+        color: var(--danger-color);
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 12px;
+        min-height: 20px;
+        transition: all 0.3s;
+      }
+
+      /* Result Hero Container */
+      .hidden {
+        display: none !important;
+      }
+
+      #lookupResultBox {
+        margin-top: 28px;
+        animation: resultFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      @keyframes resultFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .result-hero {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 24px 16px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .result-percentage {
+        font-size: 48px;
+        font-weight: 900;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1.1;
+        margin-bottom: 6px;
+      }
+
+      .result-grade {
+        display: inline-block;
+        padding: 6px 18px;
+        background: rgba(99, 102, 241, 0.15);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        color: #a5b4fc;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 700;
+        margin-top: 6px;
+      }
+
+      #lookupDetail {
+        margin-top: 14px;
+        color: #cbd5e1;
+        font-size: 14px;
+      }
+
+      /* Toast Notification Host */
+      #toastHost {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+      }
+    </style>
   </head>
   <body>
+
+    <!-- Background Ambient Light -->
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+    <div class="bg-glow-3"></div>
+
     <div class="center-screen">
-      <div class="card message-card" style="max-width: 440px">
+      <div class="card message-card">
+        
+        <div class="header-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+
         <h2>الاستعلام عن نتيجة الامتحان</h2>
         <p class="muted mt-8" id="examTitleLabel">
           اكتب رقم الهاتف الذي امتحنت به لعرض نتيجتك
         </p>
 
-        <div class="mt-16" style="text-align: right">
+        <div class="input-group">
           <div class="field">
-            <label>رقم الهاتف</label>
-            <input type="tel" id="lookupPhone" placeholder="اكتب رقم هاتفك" />
+            <label for="lookupPhone">
+              <i class="fa-solid fa-phone-flip"></i>
+              رقم الهاتف
+            </label>
+            <div class="input-wrapper">
+              <input type="tel" id="lookupPhone" placeholder="أدخل رقم هاتفك هنا..." autocomplete="off" />
+              <i class="fa-solid fa-mobile-screen-button"></i>
+            </div>
           </div>
-          <button class="btn btn-primary btn-block" onclick="lookupResult()">
-            عرض النتيجة
+
+          <button class="btn btn-primary" onclick="lookupResult()">
+            <span>عرض النتيجة</span>
+            <i class="fa-solid fa-arrow-left"></i>
           </button>
-          <div
-            id="lookupError"
-            class="muted mt-8"
-            style="color: var(--danger)"
-          ></div>
+
+          <div id="lookupError" class="muted mt-8"></div>
         </div>
 
-        <div id="lookupResultBox" class="hidden mt-24">
-          <div class="result-hero" style="padding: 10px 0">
+        <div id="lookupResultBox" class="hidden">
+          <div class="result-hero">
             <div class="result-percentage" id="lookupPct">0%</div>
             <div class="result-grade" id="lookupGrade"></div>
             <p class="muted mt-16" id="lookupDetail"></p>
           </div>
         </div>
+
       </div>
     </div>
 
     <div id="toastHost"></div>
 
+    <!-- Scripts -->
     <script src="assets/js/supabase-client.js"></script>
     <script src="assets/js/grading.js"></script>
     <script src="assets/js/results.js"></script>
+
   </body>
 </html>
