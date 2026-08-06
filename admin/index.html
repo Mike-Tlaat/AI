@@ -5,16 +5,284 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
     <title>دخول لوحة التحكم</title>
-    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
+
+    <style>
+      :root {
+        --primary: #6366f1;
+        --primary-hover: #4f46e5;
+        --primary-glow: rgba(99, 102, 241, 0.4);
+        --bg-dark: #0b0f19;
+        --card-bg: rgba(23, 32, 51, 0.75);
+        --card-border: rgba(255, 255, 255, 0.1);
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --input-bg: rgba(15, 23, 42, 0.6);
+        --input-border: rgba(255, 255, 255, 0.12);
+        --danger: #f87171;
+        --radius-lg: 24px;
+        --radius-md: 12px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Cairo', sans-serif;
+      }
+
+      body {
+        background-color: var(--bg-dark);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* خلفية متدرجة متحركة ناعمة */
+      body::before,
+      body::after {
+        content: '';
+        position: absolute;
+        width: 380px;
+        height: 380px;
+        border-radius: 50%;
+        filter: blur(120px);
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      body::before {
+        background: rgba(99, 102, 241, 0.28);
+        top: 15%;
+        right: 20%;
+      }
+
+      body::after {
+        background: rgba(168, 85, 247, 0.22);
+        bottom: 15%;
+        left: 20%;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 440px;
+        padding: 20px;
+        z-index: 1;
+      }
+
+      .auth-card {
+        width: 100%;
+      }
+
+      .card {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-lg);
+        padding: 40px 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* شريط ملون علوي أنيق */
+      .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+      }
+
+      .admin-badge {
+        width: 54px;
+        height: 54px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        color: #818cf8;
+        font-size: 22px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--primary);
+        border-radius: 50%;
+        box-shadow: 0 0 12px var(--primary);
+        display: inline-block;
+      }
+
+      .section-title h1 {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text-main);
+      }
+
+      .muted {
+        color: var(--text-muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .mt-24 {
+        margin-top: 24px;
+      }
+
+      .mt-8 {
+        margin-top: 12px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      .field label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #cbd5e1;
+      }
+
+      .password-field {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .password-field input {
+        width: 100%;
+        height: 52px;
+        padding: 0 16px 0 48px; /* جهة اليسار بزر الإظهار/الإخفاء */
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: var(--radius-md);
+        color: var(--text-main);
+        font-size: 15px;
+        outline: none;
+        transition: all 0.25s ease;
+      }
+
+      .password-field input::placeholder {
+        color: #64748b;
+      }
+
+      .password-field input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-glow);
+        background: rgba(15, 23, 42, 0.85);
+      }
+
+      .password-toggle {
+        position: absolute;
+        left: 10px;
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+      }
+
+      .password-toggle:hover {
+        color: var(--text-main);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        border-radius: var(--radius-md);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary), #4f46e5);
+        color: #ffffff;
+        box-shadow: 0 10px 20px -5px var(--primary-glow);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.5);
+        background: linear-gradient(135deg, #6366f1, #4338ca);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-block {
+        width: 100%;
+      }
+
+      .btn-lg {
+        height: 52px;
+        font-size: 16px;
+      }
+
+      #loginError {
+        font-size: 13.5px;
+        font-weight: 600;
+        text-align: center;
+        min-height: 20px;
+        color: var(--danger);
+      }
+    </style>
   </head>
   <body data-admin-page="login">
     <main class="container">
       <div class="auth-card">
         <div class="card">
+          <!-- أيقونة أمان جمالية لتعزيز التصميم -->
+          <div class="admin-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+
           <div class="section-title">
             <span class="dot"></span>
             <h1>دخول لوحة التحكم</h1>
@@ -46,11 +314,7 @@
             <button type="submit" class="btn btn-primary btn-block btn-lg">
               <i class="fa-solid fa-right-to-bracket"></i> دخول
             </button>
-            <div
-              id="loginError"
-              class="muted mt-8"
-              style="color: var(--danger)"
-            ></div>
+            <div id="loginError" class="muted mt-8"></div>
           </form>
         </div>
       </div>
