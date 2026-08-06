@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>إضافة وتعديل الامتحان</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body data-require-admin="true">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div>
+          <h1><i class="fa-solid fa-gear"></i> إضافة وتعديل الامتحان</h1>
+          <div class="sub">إنشاء الامتحانات وتحرير الأسئلة من مكان واحد</div>
+        </div>
+        <div class="topbar-chip">
+          <i class="fa-solid fa-lock"></i>
+          <span>Admin Panel</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-shell">
+      <div class="admin-toolbar">
+        <nav class="admin-nav" aria-label="تنقل لوحة التحكم">
+          <a class="btn btn-outline btn-sm" href="exams.html">
+            <i class="fa-solid fa-list-check"></i> الامتحانات
+          </a>
+          <a class="btn btn-primary btn-sm" href="builder.html">
+            <i class="fa-solid fa-plus-circle"></i> إضافة وتعديل
+          </a>
+          <a class="btn btn-outline btn-sm" href="results-pass.html">
+            <i class="fa-solid fa-circle-check"></i> الناجحون
+          </a>
+          <a class="btn btn-outline btn-sm" href="results-fail.html">
+            <i class="fa-solid fa-circle-xmark"></i> غير الناجحين
+          </a>
+        </nav>
+        <button type="button" class="btn btn-outline btn-sm" data-admin-logout>
+          <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+        </button>
+      </div>
+
+      <section class="card">
+        <div class="section-title">
+          <span class="dot"></span>
+          <h2><i class="fa-solid fa-gear"></i> إعدادات الامتحان</h2>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="examTitle">عنوان الامتحان</label>
+            <input
+              type="text"
+              id="examTitle"
+              placeholder="مثال: اختبار منتصف الفصل - اللغة العربية"
+              autocomplete="off"
+            />
+          </div>
+          <div class="field">
+            <label for="examDuration">المدة الزمنية (بالدقائق)</label>
+            <input type="number" id="examDuration" min="1" value="30" />
+          </div>
+          <div class="field">
+            <label for="examPassPct">نسبة النجاح المطلوب (%)</label>
+            <input
+              type="number"
+              id="examPassPct"
+              min="1"
+              max="100"
+              value="50"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="examAutoShow">عرض النتيجة للطالب</label>
+            <select id="examAutoShow">
+              <option value="true">تلقائيًا بعد تسليم الامتحان مباشرة</option>
+              <option value="false">
+                لاحقًا فقط (عبر صفحة الاستعلام بالرقم)
+              </option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="flex-between wrap-mobile">
+          <div class="section-title" style="margin-bottom: 0">
+            <span class="dot"></span>
+            <h2><i class="fa-solid fa-layer-group"></i> بنك الأسئلة</h2>
+          </div>
+          <div class="btn-group">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              onclick="addQuestion('true_false')"
+            >
+              <i class="fa-solid fa-check-double"></i> صح / خطأ
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              onclick="addQuestion('mcq')"
+            >
+              <i class="fa-solid fa-list-ul"></i> اختيار من متعدد
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              onclick="addQuestion('fill')"
+            >
+              <i class="fa-solid fa-pen-to-square"></i> أكمل الجملة
+            </button>
+          </div>
+        </div>
+
+        <div id="questionsBuilder" class="mt-16"></div>
+
+        <div id="noQuestionsMsg" class="empty-state">
+          <i class="fa-solid fa-file-circle-plus empty-icon"></i>
+          <p>
+            لم تقم بإضافة أسئلة بعد. اختر نوع السؤال من الأزرار أعلاه للبدء.
+          </p>
+        </div>
+      </section>
+
+      <div class="flex-between">
+        <span class="muted" id="builderStatus"></span>
+        <button
+          type="button"
+          class="btn btn-primary btn-lg"
+          id="saveExamBtn"
+          onclick="saveExam()"
+        >
+          <i class="fa-solid fa-floppy-disk"></i> حفظ ونشر الامتحان
+        </button>
+      </div>
+    </main>
+
+    <div id="toastHost"></div>
+
+    <script src="../assets/js/supabase-client.js"></script>
+    <script src="../assets/js/grading.js"></script>
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin.js"></script>
+  </body>
+</html>

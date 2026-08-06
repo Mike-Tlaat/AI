@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>دخول لوحة التحكم</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+  </head>
+  <body data-admin-page="login">
+    <main class="container">
+      <div class="auth-card">
+        <div class="card">
+          <div class="section-title">
+            <span class="dot"></span>
+            <h1>دخول لوحة التحكم</h1>
+          </div>
+          <p class="muted">
+            اكتب كلمة المرور للدخول إلى إدارة الامتحانات والنتائج.
+          </p>
+          <form id="adminLoginForm" class="mt-24">
+            <div class="field">
+              <label for="adminPassword">كلمة المرور</label>
+              <div class="password-field">
+                <input
+                  type="password"
+                  id="adminPassword"
+                  placeholder="اكتب كلمة المرور"
+                  autocomplete="current-password"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm password-toggle"
+                  data-password-toggle="adminPassword"
+                  aria-label="إظهار أو إخفاء كلمة المرور"
+                  aria-pressed="false"
+                >
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+              <i class="fa-solid fa-right-to-bracket"></i> دخول
+            </button>
+            <div
+              id="loginError"
+              class="muted mt-8"
+              style="color: var(--danger)"
+            ></div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script src="../assets/js/supabase-client.js"></script>
+    <script src="../assets/js/admin-auth.js"></script>
+  </body>
+</html>
