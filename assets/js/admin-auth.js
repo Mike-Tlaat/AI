@@ -2,7 +2,7 @@
 // حماية لوحة التحكم عبر كلمة مرور محفوظة في Supabase
 // ============================================================
 
-const ADMIN_ACCESS_KEY = "exam_admin_access_v2";
+const ADMIN_ACCESS_KEY = "exam_admin_access_v1";
 
 function isAdminAuthenticated() {
   return localStorage.getItem(ADMIN_ACCESS_KEY) === "true";
