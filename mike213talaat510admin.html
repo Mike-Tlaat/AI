@@ -13,57 +13,70 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
-    <div class="topbar">
+    <!-- الهيدر العلوي -->
+    <header class="topbar">
       <div class="container topbar-inner">
         <div>
-          <h1>لوحة التحكم</h1>
-          <div class="sub">إدارة الامتحانات، الأسئلة، والنتائج</div>
+          <h1><i class="fa-solid fa-sliders"></i> لوحة التحكم</h1>
+          <div class="sub">إدارة الامتحانات، الأسئلة، ومتابعة النتائج</div>
         </div>
         <div class="topbar-chip">
-          <i class="fa-solid fa-sparkles"></i
-          ><span>Developed by Mike Talaat</span>
+          <i class="fa-solid fa-sparkles"></i>
+          <span>Developed by Mike Talaat</span>
         </div>
       </div>
-    </div>
+    </header>
 
-    <div class="container">
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="exams">الامتحانات</button>
-        <button class="tab-btn" data-tab="builder">إنشاء امتحان جديد</button>
-        <button class="tab-btn" data-tab="results">النتائج</button>
-      </div>
+    <main class="container">
+      <!-- التبويبات الرئيسية -->
+      <nav class="tabs" aria-label="أقسام لوحة التحكم">
+        <button class="tab-btn active" data-tab="exams">
+          <i class="fa-solid fa-list-check"></i> الامتحانات
+        </button>
+        <button class="tab-btn" data-tab="builder">
+          <i class="fa-solid fa-plus-circle"></i> إنشاء امتحان جديد
+        </button>
+        <button class="tab-btn" data-tab="results">
+          <i class="fa-solid fa-chart-line"></i> النتائج والتقارير
+        </button>
+      </nav>
 
       <!-- ============ TAB: EXAMS LIST ============ -->
-      <div id="tab-exams" class="tab-panel">
+      <section id="tab-exams" class="tab-panel">
         <div class="card">
           <div class="section-title">
-            <span class="dot"></span> كل الامتحانات
+            <span class="dot"></span>
+            <h2><i class="fa-solid fa-folder-open"></i> قائمة الامتحانات M</h2>
           </div>
-          <div id="examsList" class="muted">جارِ التحميل...</div>
+          <div id="examsList" class="muted">
+            <i class="fa-solid fa-spinner fa-spin"></i> جارِ تحميل البيانات...
+          </div>
         </div>
-      </div>
+      </section>
 
       <!-- ============ TAB: BUILDER ============ -->
-      <div id="tab-builder" class="tab-panel hidden">
+      <section id="tab-builder" class="tab-panel hidden">
         <div class="card">
           <div class="section-title">
-            <span class="dot"></span> بيانات الامتحان
+            <span class="dot"></span>
+            <h2><i class="fa-solid fa-gear"></i> إعدادات الامتحان</h2>
           </div>
           <div class="row">
             <div class="field">
-              <label>اسم الامتحان</label>
+              <label for="examTitle">عنوان الامتحان</label>
               <input
                 type="text"
                 id="examTitle"
-                placeholder="مثال: امتحان الوحدة الأولى"
+                placeholder="مثال: اختبار منتصف الفصل - اللغة العربية"
+                autocomplete="off"
               />
             </div>
             <div class="field">
-              <label>مدة الامتحان (بالدقائق)</label>
+              <label for="examDuration">المدة الزمنية (بالدقائق)</label>
               <input type="number" id="examDuration" min="1" value="30" />
             </div>
             <div class="field">
-              <label>نسبة النجاح (%)</label>
+              <label for="examPassPct">نسبة النجاح المطلوب (%)</label>
               <input
                 type="number"
                 id="examPassPct"
@@ -75,9 +88,9 @@
           </div>
           <div class="row">
             <div class="field">
-              <label>إظهار النتيجة</label>
+              <label for="examAutoShow">عرض النتيجة للطالب</label>
               <select id="examAutoShow">
-                <option value="true">تلقائيًا بعد التسليم مباشرة</option>
+                <option value="true">تلقائيًا بعد تسليم الامتحان مباشرة</option>
                 <option value="false">
                   لاحقًا فقط (عبر صفحة الاستعلام بالرقم)
                 </option>
@@ -87,71 +100,86 @@
         </div>
 
         <div class="card">
-          <div class="flex-between">
+          <div class="flex-between wrap-mobile">
             <div class="section-title" style="margin-bottom: 0">
-              <span class="dot"></span> الأسئلة
+              <span class="dot"></span>
+              <h2><i class="fa-solid fa-layer-group"></i> بنك الأسئلة</h2>
             </div>
-            <div style="display: flex; gap: 8px">
+            <div class="btn-group">
               <button
+                type="button"
                 class="btn btn-outline btn-sm"
                 onclick="addQuestion('true_false')"
               >
-                + صح / غلط
+                <i class="fa-solid fa-check-double"></i> صح / خطأ
               </button>
               <button
+                type="button"
                 class="btn btn-outline btn-sm"
                 onclick="addQuestion('mcq')"
               >
-                + اختيار من متعدد
+                <i class="fa-solid fa-list-ul"></i> اختيار من متعدد
               </button>
               <button
+                type="button"
                 class="btn btn-outline btn-sm"
                 onclick="addQuestion('fill')"
               >
-                + أكمل
+                <i class="fa-solid fa-pen-to-square"></i> أكمل الجملة
               </button>
             </div>
           </div>
+
           <div id="questionsBuilder" class="mt-16"></div>
-          <div id="noQuestionsMsg" class="muted">
-            لم تُضف أسئلة بعد. اضغط أحد الأزرار أعلاه.
+
+          <div id="noQuestionsMsg" class="empty-state">
+            <i class="fa-solid fa-file-circle-plus empty-icon"></i>
+            <p>
+              لم تقم بإضافة أسئلة بعد. اختر نوع السؤال من الأزرار أعلاه للبدء.
+            </p>
           </div>
         </div>
 
         <div class="flex-between">
           <span class="muted" id="builderStatus"></span>
-          <button class="btn btn-primary" id="saveExamBtn" onclick="saveExam()">
-            حفظ الامتحان
+          <button
+            type="button"
+            class="btn btn-primary btn-lg"
+            id="saveExamBtn"
+            onclick="saveExam()"
+          >
+            <i class="fa-solid fa-floppy-disk"></i> حفظ ونشر الامتحان
           </button>
         </div>
-      </div>
+      </section>
 
       <!-- ============ TAB: RESULTS ============ -->
-      <div id="tab-results" class="tab-panel hidden">
+      <section id="tab-results" class="tab-panel hidden">
         <div class="card">
           <div class="row">
             <div class="field">
-              <label>فلترة بالامتحان</label>
+              <label for="resultsExamFilter">تصفية حسب الامتحان</label>
               <select id="resultsExamFilter" onchange="loadResults()">
-                <option value="">كل الامتحانات</option>
+                <option value="">جميع الامتحانات</option>
               </select>
             </div>
             <div class="field">
-              <label>بحث بالاسم أو الرقم</label>
+              <label for="resultsSearch">البحث عن طالب</label>
               <input
                 type="text"
                 id="resultsSearch"
-                placeholder="اكتب اسم أو رقم هاتف"
+                placeholder="ابحث بالاسم أو رقم الهاتف..."
               />
             </div>
             <div class="field" style="max-width: 220px">
-              <label>إظهار إجابات الطلاب</label>
+              <label for="showAnswersToggle">تفاصيل الإجابات</label>
               <select id="showAnswersToggle" onchange="renderResultsTables()">
-                <option value="hide">إخفاء الإجابات</option>
-                <option value="show">إظهار الإجابات</option>
+                <option value="hide">إخفاء تفاصيل الإجابات</option>
+                <option value="show">إظهار الإجابات المفصلة</option>
               </select>
             </div>
           </div>
+
           <div class="result-filter-row">
             <button
               type="button"
@@ -159,7 +187,7 @@
               data-result-filter="all"
               onclick="setResultsView('all')"
             >
-              الكل
+              <i class="fa-solid fa-users"></i> جميع الطلاب
             </button>
             <button
               type="button"
@@ -167,7 +195,7 @@
               data-result-filter="pass"
               onclick="setResultsView('pass')"
             >
-              الناجحون فقط
+              <i class="fa-solid fa-circle-check"></i> الناجحون
             </button>
             <button
               type="button"
@@ -175,14 +203,14 @@
               data-result-filter="fail"
               onclick="setResultsView('fail')"
             >
-              غير الناجحين فقط
+              <i class="fa-solid fa-circle-xmark"></i> غير الناجحين
             </button>
           </div>
         </div>
 
         <div class="card" id="passResultsCard">
           <div class="section-title">
-            <span class="dot"></span>
+            <span class="dot success-dot"></span>
             <button
               type="button"
               class="section-action"
@@ -191,12 +219,14 @@
               الطلاب الناجحون (<span id="passCount">0</span>)
             </button>
           </div>
-          <div id="passTable" class="muted">جارِ التحميل...</div>
+          <div id="passTable" class="muted">
+            <i class="fa-solid fa-spinner fa-spin"></i> جاري جلب السجلات...
+          </div>
         </div>
 
         <div class="card" id="failResultsCard">
           <div class="section-title">
-            <span class="dot"></span>
+            <span class="dot danger-dot"></span>
             <button
               type="button"
               class="section-action"
@@ -205,10 +235,12 @@
               الطلاب غير الناجحين (<span id="failCount">0</span>)
             </button>
           </div>
-          <div id="failTable" class="muted">جارِ التحميل...</div>
+          <div id="failTable" class="muted">
+            <i class="fa-solid fa-spinner fa-spin"></i> جاري جلب السجلات...
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
 
     <div id="toastHost"></div>
 
