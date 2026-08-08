@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منصة الامتحانات - الدرس الأساسي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Roboto:wght@500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="index-page">
+
+  <!-- نافذة حماية بكلمة المرور -->
+  <div id="authOverlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; z-index: 99999; font-family: 'Cairo', sans-serif; backdrop-filter: blur(8px);">
+    <div style="background: #ffffff; padding: 32px 24px; border-radius: 16px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);">
+      <div style="width: 60px; height: 60px; background: #e0e7ff; color: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 20px; font-weight: 800;">تسجيل الدخول للصفحة</h3>
+      <p style="margin: 0 0 20px 0; color: #64748b; font-size: 14px;">يرجى إدخال كلمة المرور لمتابعة الوصول إلى الامتحانات.</p>
+      
+      <input type="password" id="passInput" placeholder="أدخل كلمة المرور" style="width: 100%; padding: 12px 16px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; text-align: center; outline: none; font-family: inherit;">
+      
+      <button id="passSubmitBtn" style="width: 100%; padding: 12px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; transition: background 0.2s;">
+        دخول <i class="fa-solid fa-arrow-left" style="margin-right: 6px;"></i>
+      </button>
+      
+      <p id="passError" style="color: #ef4444; display: none; margin: 12px 0 0 0; font-size: 14px; font-weight: 600;">
+        <i class="fa-solid fa-circle-xmark"></i> كلمة المرور غير صحيحة!
+      </p>
+    </div>
+  </div>
+
+  <nav class="idx-nav">
+    <div class="nav-container">
+      <div class="brand-wrapper">
+        <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+        <h1>منصة امتحانات الدرس الأساسي</h1>
+      </div>
+      <a href="lookup.html" class="nav-lookup-link">
+        <i class="fa-solid fa-magnifying-glass"></i> الاستعلام عن النتيجة
+      </a>
+    </div>
+  </nav>
+
+  <main class="idx-main">
+    <div class="idx-header">
+      <span class="idx-badge"><i class="fa-solid fa-layer-group"></i> الاختبارات المتاحة</span>
+      <h2>اختر الامتحان المناسب</h2>
+      <p>من فضلك اختر الامتحان المناسب لمرحلتك لتبدأ الأداء فوراً أو استعلم عن النتائج.</p>
+    </div>
+
+    <div class="idx-grid" id="examsGrid">
+      <div class="idx-empty">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <span>جاري تحميل قائمة الامتحانات...</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- توقيع المطور -->
+  <div class="dev-brand-card compact">
+    <div class="dev-brand-content">
+      <span class="dev-tech-tag"><i class="fa-solid fa-code"></i> ENGINEERED BY</span>
+      <h3 class="dev-name-glow">Mike Talaat</h3>
+      <p class="dev-subtext">Full-Stack System Architecture</p>
+    </div>
+  </div>
+
+  <script type="module" src="js/index.js?v=3.0.0"></script>
+</body>
+</html>
