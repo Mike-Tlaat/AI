@@ -1,9 +1,47 @@
-import { supabase } from "./db.js?v=1.0.0";
+import { supabase } from "./db.js?v=1.0.01";
 
 /* =======================================================================
    ملاحظة عامة: كل البيانات (امتحانات - أسئلة - كنائس - أنشطة) بقت جوه
    قاعدة البيانات بالكامل، مفيش أي فتح لملفات JSON تاني.
    ======================================================================= */
+
+/* =======================================
+   البث المباشر وقت الامتحان (Supabase Realtime)
+   الأدمن يقدر يبعت رسالة تظهر فوراً لكل من يفتح صفحة هذا الامتحان
+   بدون أي عمل ريفريش، وبدون تخزين أي شيء في قاعدة البيانات (رسائل لحظية فقط).
+======================================= */
+const LIVE_CHANNEL_PREFIX = "exam_live_";
+
+// يُستخدم في exam.js: يبدأ الاستماع لرسائل الأدمن الحية لهذا الامتحان
+export function subscribeToExamBroadcast(examId, onMessage) {
+  const channel = supabase.channel(`${LIVE_CHANNEL_PREFIX}${examId}`, {
+    config: { broadcast: { self: false } },
+  });
+  channel.on("broadcast", { event: "admin_message" }, (payload) => {
+    onMessage(payload?.payload?.text || "");
+  });
+  channel.subscribe();
+  return channel; // يقدر المستخدم يستدعي channel.unsubscribe() لو احتاج
+}
+
+// يُستخدم في لوحة الأدمن: يبعت رسالة فورية لكل من يفتح صفحة هذا الامتحان الآن
+export async function sendExamBroadcast(examId, text) {
+  const channel = supabase.channel(`${LIVE_CHANNEL_PREFIX}${examId}`, {
+    config: { broadcast: { self: false } },
+  });
+  await new Promise((resolve) => {
+    channel.subscribe((status) => {
+      if (status === "SUBSCRIBED") resolve();
+    });
+  });
+  await channel.send({
+    type: "broadcast",
+    event: "admin_message",
+    payload: { text },
+  });
+  setTimeout(() => supabase.removeChannel(channel), 1500);
+  return true;
+}
 
 /* =======================================
    الامتحانات (exams)
