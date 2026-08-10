@@ -31,6 +31,21 @@ export async function getAllExams() {
   return data || [];
 }
 
+// نفس getAllExams لكن بيستثني الامتحانات المخفية من صفحة الاستعلام
+// (lookup_hidden = true)، تُستخدم فقط في قائمة اختيار الامتحان بصفحة lookup.html
+export async function getExamsForLookup() {
+  const { data, error } = await supabase
+    .from("exams")
+    .select("*")
+    .eq("lookup_hidden", false)
+    .order("id");
+  if (error) {
+    console.error("Error loading exams for lookup:", error);
+    return [];
+  }
+  return data || [];
+}
+
 export async function createExam(examData) {
   const payload = {
     name: examData.name,
@@ -40,6 +55,8 @@ export async function createExam(examData) {
     duration_seconds: Number(examData.duration_seconds) || 1800,
     pass_threshold: Number(examData.pass_threshold ?? 50),
     is_open: examData.is_open !== undefined ? !!examData.is_open : true,
+    lookup_hidden:
+      examData.lookup_hidden !== undefined ? !!examData.lookup_hidden : false,
     result_visibility: examData.result_visibility || "immediate",
     closed_message: examData.closed_message || null,
     not_found_announcement: examData.not_found_announcement || null,
@@ -62,6 +79,7 @@ export async function updateExam(examId, patch) {
     "duration_seconds",
     "pass_threshold",
     "is_open",
+    "lookup_hidden",
     "result_visibility",
     "closed_message",
     "not_found_announcement",
