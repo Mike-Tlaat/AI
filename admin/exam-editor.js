@@ -18,7 +18,8 @@ import {
   createPackageItem,
   updatePackageItem,
   deletePackageItem,
-} from "../includes/functions.js?v=1.0.0";
+  sendExamBroadcast,
+} from "../includes/functions.js?v=1.0.01";
 
 function esc(str) {
   const d = document.createElement("div");
@@ -129,7 +130,23 @@ async function renderDetailsTab() {
   const durationMinutes = Math.round((exam.duration_seconds || 1800) / 60);
 
   panel.innerHTML = `
-    <p class="a-hint-text" style="margin-top:1rem;">
+    <div class="a-bulk-delete-box" id="liveBroadcastBox" style="margin-top:1rem; border-color: rgba(37,99,235,.35);">
+      <div class="a-bulk-delete-title"><i class="fa-solid fa-bullhorn"></i> بث رسالة مباشرة الآن لكل من يفتح هذا الامتحان</div>
+      <p class="a-hint-text">
+        الرسالة تظهر فوراً (مع صوت تنبيه) لكل طالب فاتح صفحة هذا الامتحان الآن، بدون أي حاجة لعمل تحديث للصفحة.
+        الرسالة لحظية فقط ومش بتُحفظ في قاعدة البيانات - لو حد فتح الصفحة بعد إرسالها مش هيشوفها.
+      </p>
+      <form id="liveBroadcastForm" class="a-exam-form">
+        <div class="a-filter-item" style="flex:1 1 100%;">
+          <label>نص الرسالة</label>
+          <textarea name="liveMessage" rows="2" required placeholder="مثال: تبقى 5 دقائق فقط على انتهاء الامتحان، من فضلك أنهوا إجاباتكم."></textarea>
+        </div>
+        <button type="submit" class="a-bulk-del-action-btn" style="background:#2563eb;"><i class="fa-solid fa-paper-plane"></i> إرسال الآن</button>
+        <span id="broadcastSentMsg" class="a-saved-msg hidden"><i class="fa-solid fa-circle-check"></i> تم إرسال الرسالة بنجاح</span>
+      </form>
+    </div>
+
+    <p class="a-hint-text" style="margin-top:1.5rem;">
       ملحوظة: "حالة الامتحان" بتتحكم في قدرة الطالب على <b>دخول وأداء</b> الامتحان نفسه.
       "الظهور في صفحة الاستعلام" منفصلة تماماً وبتتحكم بس في ظهور الامتحان في قائمة
       الاختيار بصفحة الاستعلام عن النتيجة - تقدر تخفيه من الاستعلام وهو لسه مفتوح للأداء، أو العكس.
@@ -193,6 +210,34 @@ async function renderDetailsTab() {
     document.getElementById("closedMessageBox").style.display =
       e.target.value === "false" ? "" : "none";
   });
+
+  document
+    .getElementById("liveBroadcastForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const textarea = form.liveMessage;
+      const text = textarea.value.trim();
+      if (!text) return;
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalHtml = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...`;
+
+      try {
+        await sendExamBroadcast(examId, text);
+        textarea.value = "";
+        const msg = document.getElementById("broadcastSentMsg");
+        msg.classList.remove("hidden");
+        setTimeout(() => msg.classList.add("hidden"), 3000);
+      } catch (err) {
+        alert("حدث خطأ أثناء الإرسال: " + (err.message || err));
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHtml;
+      }
+    });
 
   document
     .getElementById("detailsForm")
