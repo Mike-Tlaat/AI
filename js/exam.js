@@ -134,17 +134,19 @@ function showModal({
     modalSummary.classList.add("hidden");
   }
 
+  const iconClassMap = {
+    alert: "warning-badge",
+    success: "success-badge",
+    confirm: "info-badge",
+  };
+  const iconGlyphMap = {
+    alert: "fa-triangle-exclamation",
+    success: "fa-circle-check",
+    confirm: "fa-circle-question",
+  };
   modalIcon.className =
-    "modal-icon-wrapper " +
-    (type === "alert"
-      ? "alert-type"
-      : type === "success"
-        ? "success-type"
-        : "confirm-type");
-  modalIcon.innerHTML =
-    type === "alert"
-      ? '<i class="fa-solid fa-triangle-exclamation"></i>'
-      : '<i class="fa-solid fa-circle-question"></i>';
+    "modal-icon-wrapper " + (iconClassMap[type] || "info-badge");
+  modalIcon.innerHTML = `<i class="fa-solid ${iconGlyphMap[type] || "fa-circle-question"}"></i>`;
 
   modalButtons.innerHTML = "";
   if (type === "confirm") {
@@ -452,6 +454,34 @@ async function showPackages() {
       });
     });
   });
+
+  const resetBtn = document.getElementById("resetPackagesBtn");
+  if (resetBtn) {
+    const newResetBtn = resetBtn.cloneNode(true);
+    resetBtn.parentNode.replaceChild(newResetBtn, resetBtn);
+
+    newResetBtn.addEventListener("click", () => {
+      const anyChecked =
+        container.querySelectorAll('input[type="checkbox"]:checked').length > 0;
+      if (!anyChecked) return;
+
+      showModal({
+        type: "confirm",
+        title: "تراجع عن الاختيار",
+        text: "هل تريد إلغاء كل الاختيارات الحالية والبدء من جديد؟",
+        confirmText: "نعم، إلغاء الكل",
+        cancelText: "لا، رجوع",
+        onConfirm: () => {
+          container
+            .querySelectorAll('input[type="checkbox"]:checked')
+            .forEach((input) => {
+              input.checked = false;
+              input.closest(".pkg-option")?.classList.remove("selected-active");
+            });
+        },
+      });
+    });
+  }
 
   const reviewBtn = document.getElementById("reviewPackagesBtn");
   if (reviewBtn) {
