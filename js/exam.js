@@ -12,7 +12,8 @@ import {
   savePackageSelections,
   getQuestionsByExam,
   submitExamAttempt,
-} from "../includes/functions.js?v=1.0.0";
+  subscribeToExamBroadcast,
+} from "../includes/functions.js?v=1.0.01";
 
 // =======================================
 // آلية التحديث التلقائي للنسخة (Cache Control)
@@ -100,6 +101,73 @@ function updatePageTitle(exam) {
   // المتصفح فوراً، لكن معاينة الروابط في واتساب/فيسبوك بتُقرأ بدون تشغيل جافاسكريبت
   // فممكن تفضل تعرض النص الافتراضي في أول لحظة قبل ما تُفتح الصفحة بالكامل.
   // لحل هذا نهائياً على مستوى المعاينة راجع ملاحظة "OG Preview" في README.
+}
+
+/* =======================================
+   استقبال رسائل البث المباشر من الأدمن وقت الامتحان
+======================================= */
+function playNotificationBeep() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    [880, 1180].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.value = 0.001;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      const startAt = ctx.currentTime + i * 0.18;
+      gain.gain.exponentialRampToValueAtTime(0.18, startAt + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, startAt + 0.28);
+      osc.start(startAt);
+      osc.stop(startAt + 0.3);
+    });
+    setTimeout(() => ctx.close(), 800);
+  } catch {
+    /* المتصفح مانع تشغيل الصوت تلقائياً، مفيش مشكلة، البانر البصري هيفضل شغال */
+  }
+}
+
+function showLiveMessageBanner(text) {
+  if (!text || !text.trim()) return;
+
+  let banner = document.getElementById("liveMsgBanner");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "liveMsgBanner";
+    document.body.appendChild(banner);
+  }
+
+  banner.innerHTML = `
+    <i class="fa-solid fa-bullhorn"></i>
+    <span class="live-msg-text">${escapeHtml(text)}</span>
+    <button type="button" id="closeLiveMsgBtn" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+  `;
+  banner.classList.remove("show");
+  requestAnimationFrame(() => banner.classList.add("show"));
+
+  document.getElementById("closeLiveMsgBtn").onclick = () =>
+    banner.classList.remove("show");
+
+  clearTimeout(banner._autoHideTimer);
+  banner._autoHideTimer = setTimeout(
+    () => banner.classList.remove("show"),
+    12000,
+  );
+}
+
+function initLiveBroadcastListener(examId) {
+  try {
+    subscribeToExamBroadcast(examId, (text) => {
+      showLiveMessageBanner(text);
+      playNotificationBeep();
+    });
+  } catch (err) {
+    console.error("Live broadcast listener error:", err);
+  }
 }
 
 /* =======================================
@@ -205,6 +273,7 @@ async function init() {
   }
 
   updatePageTitle(currentExam);
+  initLiveBroadcastListener(currentExam.id);
 
   const savedId = localStorage.getItem(attemptStorageKey(currentExam.id));
   if (savedId) {
@@ -531,13 +600,13 @@ async function showPackages() {
         .join("");
 
       showModal({
-        type: "success",
+        type: "confirm",
         title: "تأكيد الاختيار",
         summaryHtml:
           summaryHtml ||
           `<div style="color:#94a3b8;">لم تقم باختيار أي نشاط (يمكنك الاستمرار).</div>`,
         confirmText: "تأكيد والدخول للامتحان",
-        cancelText: "تعديل الاختيار",
+        cancelText: "رجوع، تعديل الاختيار",
         onCancel: () => {},
         onConfirm: async () => {
           await savePackageSelections(
