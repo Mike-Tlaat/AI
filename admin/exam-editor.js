@@ -129,7 +129,12 @@ async function renderDetailsTab() {
   const durationMinutes = Math.round((exam.duration_seconds || 1800) / 60);
 
   panel.innerHTML = `
-    <form id="detailsForm" class="a-exam-form" style="margin-top:1rem;">
+    <p class="a-hint-text" style="margin-top:1rem;">
+      ملحوظة: "حالة الامتحان" بتتحكم في قدرة الطالب على <b>دخول وأداء</b> الامتحان نفسه.
+      "الظهور في صفحة الاستعلام" منفصلة تماماً وبتتحكم بس في ظهور الامتحان في قائمة
+      الاختيار بصفحة الاستعلام عن النتيجة - تقدر تخفيه من الاستعلام وهو لسه مفتوح للأداء، أو العكس.
+    </p>
+    <form id="detailsForm" class="a-exam-form">
       <div class="a-filter-item">
         <label>اسم الامتحان</label>
         <input type="text" name="name" value="${esc(exam.name)}" required>
@@ -155,6 +160,13 @@ async function renderDetailsTab() {
         <select name="is_open" id="isOpenSelect">
           <option value="true" ${exam.is_open ? "selected" : ""}>مفتوح</option>
           <option value="false" ${!exam.is_open ? "selected" : ""}>مقفول</option>
+        </select>
+      </div>
+      <div class="a-filter-item">
+        <label>الظهور في صفحة الاستعلام عن النتيجة</label>
+        <select name="lookup_hidden">
+          <option value="false" ${!exam.lookup_hidden ? "selected" : ""}>ظاهر (الطالب يقدر يستعلم عنه)</option>
+          <option value="true" ${exam.lookup_hidden ? "selected" : ""}>مخفي (متختفي من قائمة الاستعلام تماماً)</option>
         </select>
       </div>
       <div class="a-filter-item">
@@ -195,6 +207,7 @@ async function renderDetailsTab() {
           duration_seconds: Number(fd.get("duration_minutes")) * 60,
           pass_threshold: Number(fd.get("pass_threshold")),
           is_open: fd.get("is_open") === "true",
+          lookup_hidden: fd.get("lookup_hidden") === "true",
           result_visibility: fd.get("result_visibility"),
           closed_message: fd.get("closed_message")?.trim() || null,
           not_found_announcement:
@@ -222,7 +235,7 @@ async function renderQuestionsTab() {
   panel.innerHTML = `
     <div class="a-question-form-box">
       <h3 id="qFormTitle"><i class="fa-solid fa-plus"></i> إضافة سؤال جديد</h3>
-      <form id="questionForm">
+      <form id="questionForm" class="a-exam-form">
         <div class="a-filter-item" style="flex:1 1 100%;">
           <label>نوع السؤال</label>
           <select name="type" id="qType">
