@@ -34,22 +34,25 @@ async function render() {
 
   if (notFinished) {
     card.innerHTML = `
-      <div class="result-icon pending"><i class="fa-solid fa-hourglass-half"></i></div>
-      <h2>لم يتم إنهاء الامتحان بعد</h2>
-      <p class="result-desc">لا يمكن عرض النتيجة الآن لأن هذه المحاولة لم تُسلَّم بعد.</p>
+      <div class="result-header">
+        <div class="result-icon pending pop-in"><i class="fa-solid fa-hourglass-half"></i></div>
+        <h2 class="student-title">لم يتم إنهاء الامتحان بعد</h2>
+        <p class="result-desc">لا يمكن عرض النتيجة الآن لأن هذه المحاولة لم تُسلَّم بعد.</p>
+      </div>
       <button class="state-btn" onclick="exitEntireSite()"><i class="fa-solid fa-right-from-bracket"></i> الخروج نهائياً</button>
     `;
   } else {
     card.innerHTML = `
-      <div class="result-icon ${isPass ? "pass" : "fail"} pop-in">
-        <i class="fa-solid ${isPass ? "fa-circle-check" : "fa-circle-xmark"}"></i>
-      </div>
-      <h2 class="fade-in-up d1">${escapeHtml(exam?.name || "")}</h2>
-      <div class="result-student-name fade-in-up d1"><i class="fa-regular fa-user"></i> ${escapeHtml(attempt.user_name)}</div>
-
-      <div class="status-pill ${isPass ? "pass" : "fail"} fade-in-up d2">
-        <i class="fa-solid ${isPass ? "fa-trophy" : "fa-face-frown"}"></i>
-        ${isPass ? "تم اجتياز الامتحان بنجاح" : "لم يتم اجتياز الامتحان"}
+      <div class="result-header">
+        <div class="result-icon ${isPass ? "pass" : "fail"} pop-in">
+          <i class="fa-solid ${isPass ? "fa-circle-check" : "fa-circle-xmark"}"></i>
+        </div>
+        <h2 class="student-title fade-in-up d1">${escapeHtml(exam?.name || "")}</h2>
+        <div class="result-student-name fade-in-up d1"><i class="fa-regular fa-user"></i> ${escapeHtml(attempt.user_name)}</div>
+        <div class="status-pill ${isPass ? "pass" : "fail"} fade-in-up d2">
+          <i class="fa-solid ${isPass ? "fa-trophy" : "fa-face-frown"}"></i>
+          ${isPass ? "تم اجتياز الامتحان بنجاح" : "لم يتم اجتياز الامتحان"}
+        </div>
       </div>
 
       <div class="stats-grid fade-in-up d3">
