@@ -1,5 +1,5 @@
 import {
-  getAllExams,
+  getExamsForLookup,
   getExamById,
   getPackageSelections,
 } from "../includes/functions.js?v=1.0.0";
@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 1. تحميل قائمة الامتحانات
   try {
-    const exams = await getAllExams();
+    const exams = await getExamsForLookup();
     if (exams && exams.length) {
       examSelect.innerHTML =
         `<option value="">-- اختر الامتحان --</option>` +
@@ -251,8 +251,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("resStudentName").textContent =
       attempt.user_name || "بدون اسم";
     document.getElementById("resPhone").textContent = attempt.user_phone;
-    document.getElementById("resChurch").textContent =
-      attempt.user_church || "غير محدد";
+
+    // لو الامتحان ده مالوش كنيسة (الطالب سجل من غير خانة كنيسة)، نخفي هذا الصندوق بالكامل
+    const churchBox = document.getElementById("resChurchBox");
+    if (attempt.user_church && attempt.user_church.trim() !== "") {
+      churchBox.classList.remove("hidden");
+      document.getElementById("resChurch").textContent = attempt.user_church;
+    } else {
+      churchBox.classList.add("hidden");
+    }
 
     const scorePct = Number(attempt.percentage || 0).toFixed(1);
     document.getElementById("resScore").textContent =
@@ -275,32 +282,37 @@ document.addEventListener("DOMContentLoaded", async () => {
       passPill.innerHTML = `<i class="fa-solid fa-xmark"></i> غير ناجح`;
     }
 
+    // لو الامتحان مالوش أي أقسام أنشطة/بكدجات، نخفي القسم بالكامل. كل قسم بيظهر
+    // باسمه الحقيقي اللي حدده الأدمن (مش تحت اسم عام ثابت زي "الأنشطة والألعاب")
+    const activitiesWrapper = document.getElementById("activitiesWrapper");
     const actContainer = document.getElementById("activitiesContainer");
-    let actHtml = "";
+    const hasAnyPackages = packages && Object.keys(packages).length > 0;
 
-    if (packages && Object.keys(packages).length > 0) {
-      Object.entries(packages).forEach(([category, items]) => {
-        const itemsList =
-          Array.isArray(items) && items.length
-            ? items
-                .map(
-                  (it) =>
-                    `<span class="activity-chip"><i class="fa-solid fa-check-double"></i> ${escapeHtml(it)}</span>`,
-                )
-                .join("")
-            : `<span class="activity-chip empty">لم يتم التحديد</span>`;
+    if (hasAnyPackages) {
+      activitiesWrapper.classList.remove("hidden");
+      actContainer.innerHTML = Object.entries(packages)
+        .map(([category, items]) => {
+          const itemsList =
+            Array.isArray(items) && items.length
+              ? items
+                  .map(
+                    (it) =>
+                      `<span class="activity-chip"><i class="fa-solid fa-check-double"></i> ${escapeHtml(it)}</span>`,
+                  )
+                  .join("")
+              : `<span class="activity-chip empty">لم يتم التحديد</span>`;
 
-        actHtml += `
+          return `
           <div class="activity-block">
             <div class="activity-cat-title"><i class="fa-solid fa-layer-group"></i> ${escapeHtml(category)}:</div>
             <div class="activity-chips-wrap">${itemsList}</div>
           </div>`;
-      });
+        })
+        .join("");
     } else {
-      actHtml = `<div class="empty-activities"><i class="fa-solid fa-info-circle"></i> لا توجد أنشطة أو ألعاب مسجلة لهذا الطالب.</div>`;
+      activitiesWrapper.classList.add("hidden");
+      actContainer.innerHTML = "";
     }
-
-    actContainer.innerHTML = actHtml;
 
     searchCard.classList.add("hidden");
     resultCard.classList.remove("hidden");
