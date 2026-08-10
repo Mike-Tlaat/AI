@@ -1616,6 +1616,7 @@ button + .btn,
   color: #34d399;
   border: 1px solid rgba(16, 185, 129, 0.35);
   box-shadow: 0 0 32px rgba(16, 185, 129, 0.22);
+  animation: pulseIcon 3s ease-in-out infinite alternate;
 }
 .modal-icon-wrapper.danger-badge {
   background: linear-gradient(
@@ -1626,6 +1627,7 @@ button + .btn,
   color: #f87171;
   border: 1px solid rgba(239, 68, 68, 0.35);
   box-shadow: 0 0 32px rgba(239, 68, 68, 0.22);
+  animation: pulseIcon 3s ease-in-out infinite alternate;
 }
 .modal-icon-wrapper.info-badge {
   background: linear-gradient(
@@ -1636,6 +1638,7 @@ button + .btn,
   color: #60a5fa;
   border: 1px solid rgba(59, 130, 246, 0.35);
   box-shadow: 0 0 32px rgba(59, 130, 246, 0.22);
+  animation: pulseIcon 3s ease-in-out infinite alternate;
 }
 
 .custom-modal-box h3.modal-title {
@@ -4126,6 +4129,57 @@ textarea.text-answer-input {
   min-width: 170px;
 }
 
+/* الاختيارات الديناميكية (اختيار من متعدد) وقسم الفراغات - مسافة وتمييز أوضح */
+#qOptionsBox,
+#qBlanksBox {
+  background: var(--a-surface-2);
+  border: 1px solid var(--a-border);
+  border-radius: var(--a-radius-md);
+  padding: var(--a-sp-4);
+  margin-top: var(--a-sp-1);
+}
+#qOptionsBox > label,
+#qBlanksBox > label {
+  display: block;
+  margin-bottom: var(--a-sp-3);
+}
+#optionsRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--a-sp-2);
+  margin-bottom: var(--a-sp-3);
+}
+#optionsRows > div {
+  display: flex;
+  gap: var(--a-sp-2);
+  align-items: center;
+}
+#optionsRows input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: var(--a-radius-sm);
+  border: 1px solid var(--a-border);
+  background: var(--a-surface);
+  color: var(--a-text);
+  font-family: inherit;
+}
+#correctAnswerSelect,
+#tfSelect {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--a-radius-sm);
+  border: 1px solid var(--a-border);
+  background: var(--a-surface);
+  color: var(--a-text);
+  font-family: inherit;
+  margin-top: var(--a-sp-1);
+}
+#blankRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--a-sp-2);
+}
+
 .a-questions-list {
   margin-top: var(--a-sp-5);
   display: flex;
@@ -4493,4 +4547,189 @@ textarea.text-answer-input {
   .state-card {
     padding: 2rem 1.4rem;
   }
+}
+
+/* ======================================================================
+   v1.0.1 — إصلاحات المسافات على الموبايل + أزرار المودال + حياة الأيقونات
+====================================================================== */
+
+/* ---------- توحيد شكل ومسافات نتيجة الامتحان (المباشرة + الاستعلام) ---------- */
+.result-card {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+.result-card > * {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.result-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 !important;
+  width: 100%;
+}
+.result-header .result-icon {
+  margin-bottom: 0 !important;
+}
+.result-header .student-title {
+  margin-bottom: 0 !important;
+}
+
+.result-student-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted, #94a3b8);
+  font-size: 1rem;
+  font-weight: 600;
+}
+.result-student-name i {
+  color: var(--primary, #3b82f6);
+}
+
+.result-desc {
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  text-align: center;
+  max-width: 380px;
+}
+
+.stats-grid {
+  margin-bottom: 0 !important;
+}
+.activities-wrapper {
+  margin: 0 !important;
+  width: 100%;
+}
+
+/* ---------- أزرار مودال التأكيد (زي "تسليم النهائي" / "تراجع، مراجعة الإجابات") ---------- */
+.modal-buttons-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  justify-content: center;
+  width: 100%;
+  margin-top: 1.75rem;
+}
+.modal-btn {
+  flex: 1 1 160px;
+  min-width: 140px;
+  padding: 0.85rem 1.4rem;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 !important;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.modal-btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #fff;
+  box-shadow: 0 10px 26px rgba(59, 130, 246, 0.35);
+}
+.modal-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(59, 130, 246, 0.45);
+}
+.modal-btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main, #f1f5f9);
+  border: 1px solid var(--border-strong, rgba(148, 163, 184, 0.3));
+  box-shadow: none;
+}
+.modal-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+  .modal-buttons-group {
+    flex-direction: column-reverse;
+    gap: 0.7rem;
+  }
+  .modal-btn {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+
+/* ---------- شاشة اختيار الأنشطة: صف الأزرار (تراجع + مراجعة ودخول) ---------- */
+.pkg-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+.pkg-actions-row .btn-submit {
+  flex: 1 1 220px;
+  margin: 0 !important;
+}
+@media (max-width: 560px) {
+  .pkg-actions-row {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+  .pkg-actions-row .btn-submit {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+
+/* ---------- شريط أزرار الامتحان (تسليم) على الموبايل ---------- */
+.exam-actions-bar {
+  gap: 1rem;
+}
+@media (max-width: 560px) {
+  .exam-actions-bar {
+    flex-direction: column;
+  }
+  .exam-actions-bar .btn-finish,
+  .exam-actions-bar button {
+    width: 100%;
+  }
+}
+
+/* ---------- حياة وإضاءة للأيقونات التحذيرية في كل الموقع ---------- */
+@keyframes iconLivePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px currentColor);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 14px currentColor);
+    opacity: 0.85;
+  }
+}
+.error-alert i,
+.warning-box i,
+.submit-error-box i,
+.fa-triangle-exclamation,
+.fa-circle-exclamation,
+.fa-circle-xmark,
+i.fa-circle-info {
+  animation: iconLivePulse 2.2s ease-in-out infinite;
+}
+.result-icon i,
+.state-icon i,
+.toast i {
+  animation: none;
 }
