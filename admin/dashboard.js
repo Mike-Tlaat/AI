@@ -4,7 +4,7 @@ import {
   updateExamStatus,
   deleteExam,
   changeAdminPassword,
-} from "../includes/functions.js?v=1.0.0";
+} from "../includes/functions.js?v=1.0.01";
 
 function escapeHtml(str) {
   const d = document.createElement("div");
@@ -88,7 +88,12 @@ export async function renderAdminDashboard() {
       <form id="changePasswordForm" class="a-exam-form">
         <div class="a-filter-item">
           <label>الباسورد الجديد</label>
-          <input type="password" name="newPassword" minlength="4" required placeholder="اكتب باسورد جديد">
+          <div class="a-pass-input-wrap">
+            <input type="password" name="newPassword" id="newPasswordInput" minlength="4" required placeholder="اكتب باسورد جديد">
+            <button type="button" id="toggleNewPasswordEye" tabindex="-1" aria-label="إظهار/إخفاء كلمة المرور">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
         </div>
         <button type="submit" class="a-mini-btn"><i class="fa-solid fa-floppy-disk"></i> حفظ الباسورد الجديد</button>
         <span id="passwordSavedMsg" class="a-saved-msg hidden"><i class="fa-solid fa-circle-check"></i> تم تغيير الباسورد بنجاح</span>
@@ -223,6 +228,16 @@ export async function renderAdminDashboard() {
         alert("حدث خطأ أثناء إنشاء الامتحان: " + (err.message || err));
         submitBtn.disabled = false;
       }
+    });
+
+  document
+    .getElementById("toggleNewPasswordEye")
+    ?.addEventListener("click", (e) => {
+      const input = document.getElementById("newPasswordInput");
+      const icon = e.currentTarget.querySelector("i");
+      const showing = input.type === "text";
+      input.type = showing ? "password" : "text";
+      icon.className = showing ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
     });
 
   document
