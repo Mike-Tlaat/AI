@@ -14,6 +14,7 @@ import {
   adminAddAttemptPackageItem,
   getPackageCategoriesForExam,
 } from "../includes/functions.js?v=1.0.0";
+import { adminAlert, adminConfirm } from "./admin-ui.js?v=1.0.1";
 
 function escapeHtml(str) {
   const d = document.createElement("div");
@@ -327,19 +328,28 @@ export async function renderAdminAttemptsPage(tab) {
       e.stopPropagation();
       const id = btn.dataset.id;
       const name = btn.dataset.name;
-      if (
-        !confirm(
-          `هل أنت متأكد من حذف الطالب (${name}) نهائياً من قاعدة البيانات؟`,
-        )
-      )
-        return;
+      const ok = await adminConfirm(
+        `هل أنت متأكد من حذف الطالب (${name}) نهائياً من قاعدة البيانات؟`,
+        {
+          title: "حذف طالب",
+          confirmText: "نعم، حذف نهائي",
+          danger: true,
+        },
+      );
+      if (!ok) return;
       try {
         await deleteAttempt(id);
-        alert("تم حذف الطالب بنجاح");
+        await adminAlert("تم حذف الطالب بنجاح", {
+          type: "success",
+          title: "تم الحذف",
+        });
         window.location.reload();
       } catch (err) {
         console.error(err);
-        alert("حدث خطأ أثناء الحذف: " + (err.message || "خطأ غير معروف"));
+        await adminAlert(
+          "حدث خطأ أثناء الحذف: " + (err.message || "خطأ غير معروف"),
+          { type: "danger", title: "خطأ" },
+        );
       }
     });
   });
@@ -351,8 +361,16 @@ export async function renderAdminAttemptsPage(tab) {
       const churchName = document.getElementById("bulk_del_church").value;
       const rawItem = document.getElementById("bulk_del_item").value;
 
-      if (!examId) return alert("يرجى اختيار الامتحان أولاً");
-      if (!rawItem) return alert("يرجى اختيار النشاط أو الرياضة المراد حذفها");
+      if (!examId)
+        return adminAlert("يرجى اختيار الامتحان أولاً", {
+          type: "danger",
+          title: "بيانات ناقصة",
+        });
+      if (!rawItem)
+        return adminAlert("يرجى اختيار النشاط أو الرياضة المراد حذفها", {
+          type: "danger",
+          title: "بيانات ناقصة",
+        });
 
       let category = "";
       let item = rawItem;
@@ -362,12 +380,15 @@ export async function renderAdminAttemptsPage(tab) {
         !churchName || churchName === "ALL"
           ? "جميع الكنائس"
           : `كنيسة (${churchName})`;
-      if (
-        !confirm(
-          `هل أنت متأكد من حذف (${item}) لجميع الطلاب في هذا الامتحان لـ ${churchText}؟`,
-        )
-      )
-        return;
+      const ok = await adminConfirm(
+        `هل أنت متأكد من حذف (${item}) لجميع الطلاب في هذا الامتحان لـ ${churchText}؟`,
+        {
+          title: "مسح نشاط بالجملة",
+          confirmText: "نعم، حذف",
+          danger: true,
+        },
+      );
+      if (!ok) return;
 
       try {
         const deletedCount = await deletePackageSelectionsByFilter(
@@ -376,13 +397,17 @@ export async function renderAdminAttemptsPage(tab) {
           examId,
           churchName === "ALL" ? "" : churchName,
         );
-        alert(
+        await adminAlert(
           `تم حذف النشاط/الرياضة بنجاح!\nعدد الطلاب المحدثين: ${deletedCount}`,
+          { type: "success", title: "تم الحذف" },
         );
         window.location.reload();
       } catch (err) {
         console.error(err);
-        alert("حدث خطأ أثناء الحذف: " + (err.message || "خطأ غير معروف"));
+        await adminAlert(
+          "حدث خطأ أثناء الحذف: " + (err.message || "خطأ غير معروف"),
+          { type: "danger", title: "خطأ" },
+        );
       }
     });
 
@@ -487,8 +512,9 @@ export async function renderAdminAttemptsPage(tab) {
         let newScore = Number(input.value) || 0;
 
         if (newScore > row.max_score) {
-          alert(
+          await adminAlert(
             `لا يمكن أن تتجاوز الدرجة الحد الأقصى لهذا السؤال (${row.max_score}). تم ضبطها تلقائياً على ${row.max_score}.`,
+            { type: "danger", title: "تجاوز الحد الأقصى" },
           );
           newScore = row.max_score;
           input.value = row.max_score;
@@ -623,13 +649,21 @@ export async function renderAdminAttemptsPage(tab) {
             pkgBlockHtml(attemptId, sel[attemptId] || {});
           await renderPkgEditArea(attemptId, examId);
         } catch (err) {
-          alert("حدث خطأ: " + (err.message || err));
+          await adminAlert("حدث خطأ: " + (err.message || err), {
+            type: "danger",
+            title: "خطأ",
+          });
         }
       });
 
     area.querySelectorAll(".a-pkg-remove-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        if (!confirm("هل تريد إزالة هذا الاختيار؟")) return;
+        const ok = await adminConfirm("هل تريد إزالة هذا الاختيار؟", {
+          title: "إزالة اختيار",
+          confirmText: "نعم، إزالة",
+          danger: true,
+        });
+        if (!ok) return;
         await adminRemoveAttemptPackageItem(btn.dataset.row);
         const sel = await getPackageSelectionsBatch([attemptId]);
         document.getElementById(`pkgblock_${attemptId}`).innerHTML =
