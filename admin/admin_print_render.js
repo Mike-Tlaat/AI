@@ -5,6 +5,7 @@ import {
   getAllChurches,
   deletePackageSelectionsByFilter,
 } from "../includes/functions.js?v=1.0.0";
+import { adminAlert, adminConfirm } from "./admin-ui.js?v=1.0.01";
 
 function escapeHtml(str) {
   const d = document.createElement("div");
@@ -699,11 +700,17 @@ export async function renderAdminPrintPage() {
     const rawItem = document.getElementById("del_package_item").value;
 
     if (!examId) {
-      alert("يرجى اختيار الامتحان أولاً");
+      await adminAlert("يرجى اختيار الامتحان أولاً", {
+        type: "danger",
+        title: "بيانات ناقصة",
+      });
       return;
     }
     if (!rawItem) {
-      alert("يرجى اختيار النشاط أو الرياضة المراد حذفها");
+      await adminAlert("يرجى اختيار النشاط أو الرياضة المراد حذفها", {
+        type: "danger",
+        title: "بيانات ناقصة",
+      });
       return;
     }
 
@@ -720,7 +727,12 @@ export async function renderAdminPrintPage() {
 
     const confirmMsg = `هل أنت متأكد من حذف (${item}) لجميع الطلاب المتقدمين في هذا الامتحان لـ ${churchText}؟\n\nلن يظهر هذا النشاط في كشوفات الطباعة نهائياً بعد الحذف.`;
 
-    if (!confirm(confirmMsg)) return;
+    const ok = await adminConfirm(confirmMsg, {
+      title: "مسح نشاط بالجملة",
+      confirmText: "نعم، حذف",
+      danger: true,
+    });
+    if (!ok) return;
 
     try {
       const deletedCount = await deletePackageSelectionsByFilter(
@@ -729,13 +741,17 @@ export async function renderAdminPrintPage() {
         examId,
         churchName,
       );
-      alert(
+      await adminAlert(
         `تم حذف النشاط/الرياضة بنجاح!\nإجمالي عدد الطلاب الذين تم مسح النشاط لهم: ${deletedCount}`,
+        { type: "success", title: "تم الحذف" },
       );
       window.location.reload();
     } catch (err) {
       console.error(err);
-      alert("حدث خطأ أثناء الحذف: " + (err.message || "خطأ غير معروف"));
+      await adminAlert(
+        "حدث خطأ أثناء الحذف: " + (err.message || "خطأ غير معروف"),
+        { type: "danger", title: "خطأ" },
+      );
     }
   };
 }
