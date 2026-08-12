@@ -4,7 +4,8 @@ import {
   updateExamStatus,
   deleteExam,
   changeAdminPassword,
-} from "../includes/functions.js?v=1.0.01";
+} from "../includes/functions.js?v=1.0.0";
+import { adminAlert, adminConfirm } from "./admin-ui.js?v=1.0.01";
 
 function escapeHtml(str) {
   const d = document.createElement("div");
@@ -148,7 +149,10 @@ export async function renderAdminDashboard() {
           if (ex) ex.is_open = !currentOpen;
           renderGrid();
         } catch (err) {
-          alert("حدث خطأ: " + (err.message || err));
+          await adminAlert("حدث خطأ: " + (err.message || err), {
+            type: "danger",
+            title: "خطأ",
+          });
           btn.disabled = false;
         }
       });
@@ -166,7 +170,7 @@ export async function renderAdminDashboard() {
             1500,
           );
         } catch {
-          alert(url);
+          await adminAlert(url, { type: "info", title: "رابط الامتحان" });
         }
       });
     });
@@ -175,19 +179,25 @@ export async function renderAdminDashboard() {
       btn.addEventListener("click", async () => {
         const id = Number(btn.dataset.id);
         const name = btn.dataset.name;
-        if (
-          !confirm(
-            `هل أنت متأكد من حذف امتحان "${name}" نهائياً؟\nسيتم حذف كل الأسئلة والمحاولات المرتبطة به!`,
-          )
-        )
-          return;
+        const ok = await adminConfirm(
+          `هل أنت متأكد من حذف امتحان "${name}" نهائياً؟\nسيتم حذف كل الأسئلة والمحاولات المرتبطة به!`,
+          {
+            title: "حذف امتحان",
+            confirmText: "نعم، حذف نهائي",
+            danger: true,
+          },
+        );
+        if (!ok) return;
         try {
           await deleteExam(id);
           const idx = exams.findIndex((e) => e.id === id);
           if (idx > -1) exams.splice(idx, 1);
           renderGrid();
         } catch (err) {
-          alert("حدث خطأ أثناء الحذف: " + (err.message || err));
+          await adminAlert("حدث خطأ أثناء الحذف: " + (err.message || err), {
+            type: "danger",
+            title: "خطأ",
+          });
         }
       });
     });
@@ -225,7 +235,10 @@ export async function renderAdminDashboard() {
         });
         window.location.href = `exam-editor.html?id=${exam.id}`;
       } catch (err) {
-        alert("حدث خطأ أثناء إنشاء الامتحان: " + (err.message || err));
+        await adminAlert(
+          "حدث خطأ أثناء إنشاء الامتحان: " + (err.message || err),
+          { type: "danger", title: "خطأ" },
+        );
         submitBtn.disabled = false;
       }
     });
@@ -247,12 +260,14 @@ export async function renderAdminDashboard() {
       const fd = new FormData(e.target);
       const newPassword = fd.get("newPassword")?.trim();
       if (!newPassword) return;
-      if (
-        !confirm(
-          "هل أنت متأكد من تغيير باسورد لوحة التحكم؟ لن تقدر ترجع الباسورد القديم إلا بمعرفته.",
-        )
-      )
-        return;
+      const ok = await adminConfirm(
+        "هل أنت متأكد من تغيير باسورد لوحة التحكم؟ لن تقدر ترجع الباسورد القديم إلا بمعرفته.",
+        {
+          title: "تغيير الباسورد",
+          confirmText: "نعم، تغيير",
+        },
+      );
+      if (!ok) return;
       try {
         await changeAdminPassword(newPassword);
         e.target.reset();
@@ -260,7 +275,10 @@ export async function renderAdminDashboard() {
         msg.classList.remove("hidden");
         setTimeout(() => msg.classList.add("hidden"), 3000);
       } catch (err) {
-        alert("حدث خطأ: " + (err.message || err));
+        await adminAlert("حدث خطأ: " + (err.message || err), {
+          type: "danger",
+          title: "خطأ",
+        });
       }
     });
 
