@@ -19,7 +19,8 @@ import {
   updatePackageItem,
   deletePackageItem,
   sendExamBroadcast,
-} from "../includes/functions.js?v=1.0.01";
+} from "../includes/functions.js?v=1.0.0";
+import { adminAlert, adminConfirm } from "./admin-ui.js?v=1.0.01";
 
 function esc(str) {
   const d = document.createElement("div");
@@ -232,7 +233,10 @@ async function renderDetailsTab() {
         msg.classList.remove("hidden");
         setTimeout(() => msg.classList.add("hidden"), 3000);
       } catch (err) {
-        alert("حدث خطأ أثناء الإرسال: " + (err.message || err));
+        await adminAlert("حدث خطأ أثناء الإرسال: " + (err.message || err), {
+          type: "danger",
+          title: "خطأ",
+        });
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalHtml;
@@ -262,7 +266,10 @@ async function renderDetailsTab() {
         msg.classList.remove("hidden");
         setTimeout(() => msg.classList.add("hidden"), 2500);
       } catch (err) {
-        alert("حدث خطأ أثناء الحفظ: " + (err.message || err));
+        await adminAlert("حدث خطأ أثناء الحفظ: " + (err.message || err), {
+          type: "danger",
+          title: "خطأ",
+        });
       }
     });
 }
@@ -468,7 +475,10 @@ async function renderQuestionsTab() {
         );
         const options = optionInputs.map((i) => i.value.trim()).filter(Boolean);
         if (options.length < 2)
-          return alert("لازم يكون فيه على الأقل اختيارين");
+          return await adminAlert("لازم يكون فيه على الأقل اختيارين", {
+            type: "danger",
+            title: "بيانات ناقصة",
+          });
         payload.options = options;
         payload.correct_answer = document.getElementById(
           "correctAnswerSelect",
@@ -509,7 +519,10 @@ async function renderQuestionsTab() {
         resetForm();
         await renderQuestionsTab();
       } catch (err) {
-        alert("حدث خطأ: " + (err.message || err));
+        await adminAlert("حدث خطأ: " + (err.message || err), {
+          type: "danger",
+          title: "خطأ",
+        });
       }
     });
 
@@ -560,7 +573,12 @@ async function renderQuestionsTab() {
       btn.addEventListener("click", async () => {
         const card = btn.closest(".a-question-card");
         const id = Number(card.dataset.id);
-        if (!confirm("هل تريد حذف هذا السؤال نهائياً؟")) return;
+        const ok = await adminConfirm("هل تريد حذف هذا السؤال نهائياً؟", {
+          title: "حذف سؤال",
+          confirmText: "نعم، حذف",
+          danger: true,
+        });
+        if (!ok) return;
         await deleteQuestion(id);
         await renderQuestionsTab();
       });
@@ -662,7 +680,15 @@ async function renderChurchesTab() {
 
     listEl.querySelectorAll(".remove-church-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        if (!confirm("حذف هذه الكنيسة من القائمة الرئيسية نهائياً؟")) return;
+        const ok = await adminConfirm(
+          "حذف هذه الكنيسة من القائمة الرئيسية نهائياً؟",
+          {
+            title: "حذف كنيسة",
+            confirmText: "نعم، حذف",
+            danger: true,
+          },
+        );
+        if (!ok) return;
         await deleteChurch(Number(btn.dataset.id));
         const idx = allChurches.findIndex(
           (c) => c.id === Number(btn.dataset.id),
@@ -703,8 +729,9 @@ async function renderChurchesTab() {
         renderMasterList();
         renderCheckboxes();
       } catch (err) {
-        alert(
+        await adminAlert(
           "حدث خطأ (قد تكون الكنيسة مضافة مسبقاً): " + (err.message || err),
+          { type: "danger", title: "خطأ" },
         );
       }
     });
@@ -734,7 +761,10 @@ async function renderChurchesTab() {
         msg.classList.remove("hidden");
         setTimeout(() => msg.classList.add("hidden"), 2500);
       } catch (err) {
-        alert("حدث خطأ أثناء الحفظ: " + (err.message || err));
+        await adminAlert("حدث خطأ أثناء الحفظ: " + (err.message || err), {
+          type: "danger",
+          title: "خطأ",
+        });
       }
     });
 }
@@ -784,7 +814,10 @@ async function renderPackagesTab() {
         });
         await renderPackagesTab();
       } catch (err) {
-        alert("حدث خطأ: " + (err.message || err));
+        await adminAlert("حدث خطأ: " + (err.message || err), {
+          type: "danger",
+          title: "خطأ",
+        });
       }
     });
 
@@ -841,21 +874,37 @@ async function renderPackagesTab() {
         await updatePackageCategory(catId, { name, min_select, max_select });
         await renderPackagesTab();
       } catch (err) {
-        alert("حدث خطأ: " + (err.message || err));
+        await adminAlert("حدث خطأ: " + (err.message || err), {
+          type: "danger",
+          title: "خطأ",
+        });
       }
     });
 
     card
       .querySelector(".delete-cat-btn")
       .addEventListener("click", async () => {
-        if (!confirm("هل تريد حذف هذا القسم وكل عناصره نهائياً؟")) return;
+        const ok = await adminConfirm(
+          "هل تريد حذف هذا القسم وكل عناصره نهائياً؟",
+          {
+            title: "حذف قسم",
+            confirmText: "نعم، حذف",
+            danger: true,
+          },
+        );
+        if (!ok) return;
         await deletePackageCategory(catId);
         await renderPackagesTab();
       });
 
     card.querySelectorAll(".remove-item-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        if (!confirm("حذف هذا العنصر؟")) return;
+        const ok = await adminConfirm("حذف هذا العنصر؟", {
+          title: "حذف عنصر",
+          confirmText: "نعم، حذف",
+          danger: true,
+        });
+        if (!ok) return;
         await deletePackageItem(Number(btn.dataset.itemId));
         await renderPackagesTab();
       });
@@ -872,7 +921,10 @@ async function renderPackagesTab() {
           await createPackageItem(catId, { name, sort_order: 0 });
           await renderPackagesTab();
         } catch (err) {
-          alert("حدث خطأ: " + (err.message || err));
+          await adminAlert("حدث خطأ: " + (err.message || err), {
+            type: "danger",
+            title: "خطأ",
+          });
         }
       });
   });
